@@ -20,3 +20,8 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+Liceti3D/Library
+Liceti3D/Logs
+Liceti3D/Temp
+Liceti3D/UserSettings
+Liceti3D/.vsconfig
