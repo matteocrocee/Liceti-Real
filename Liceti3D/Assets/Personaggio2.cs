@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Script_Personaggio : MonoBehaviour
+public class Personaggio2 : MonoBehaviour
 {
-    public float moveSpeed = 5.0f;
+    public float moveSpeed = 7.0f;
     public float rotationSpeed = 400.0f;
-    public float jumpHeight = 2.0f;
+    public float jumpHeight = 10000.0f;
     public float gravity = -9.81f;
 
     private CharacterController characterController;
@@ -35,6 +35,24 @@ public class Script_Personaggio : MonoBehaviour
         if (Input.GetKey(KeyCode.W))
         {
             Debug.Log("Premuto W");
+            transform.position = Vector3.forward * Time.deltaTime * moveSpeed;
+        }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            Debug.Log("premuto S");
+            transform.position = Vector3.back * Time.deltaTime * moveSpeed;
+        }
+
+        if (Input.GetKey(KeyCode.A))
+        {
+            Debug.Log("premuto A");
+            transform.position = Vector3.left * Time.deltaTime * moveSpeed;
+        }
+
+        else if ( Input.GetKey(KeyCode.D))
+        {
+            Debug.Log("premuto D");
+            transform.position = Vector3.right * Time.deltaTime * moveSpeed;
         }
 
         // Rotazione
