@@ -64,7 +64,9 @@
     <Compile Include="Assets\scrip.cs" />
     <Compile Include="Assets\attaco.cs" />
     <Compile Include="Assets\NewBehaviourScript.cs" />
+    <Compile Include="Assets\NEMICO3D.cs" />
     <Compile Include="Assets\navmesh.cs" />
+    <Compile Include="Assets\nemico.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
