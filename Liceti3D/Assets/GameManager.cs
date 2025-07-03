@@ -6,13 +6,19 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     [Header("UI Elements")]
-    public TMP_Text punteggioText;    // Testo punteggio (TextMeshPro)
-    public TMP_Text powerUpText;      // Testo power-up (TextMeshPro)
+    public TMP_Text punteggioText;
+    public TMP_Text powerUpText;
 
     private int punteggio = 0;
+
     private bool hasSpeedPowerUp = false;
+    private bool hasJumpPowerUp = false;
+
     private float powerUpDuration = 5f;
     private float powerUpTimer = 0f;
+
+    private enum PowerUpType { None, Speed, Jump }
+    private PowerUpType activePowerUp = PowerUpType.None;
 
     void Awake()
     {
@@ -39,6 +45,15 @@ public class GameManager : MonoBehaviour
                 AttivaPowerUpSpeed();
             }
         }
+        else if (hasJumpPowerUp)
+        {
+            powerUpText.text = "Premi F per attivare Jump!";
+
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                AttivaPowerUpJump();
+            }
+        }
 
         if (powerUpTimer > 0f)
         {
@@ -46,7 +61,7 @@ public class GameManager : MonoBehaviour
             if (powerUpTimer <= 0f)
             {
                 powerUpTimer = 0f;
-                // Il power-up termina: il personaggio si resetta da solo (via coroutine)
+                DisattivaPowerUp();
             }
         }
     }
@@ -68,17 +83,51 @@ public class GameManager : MonoBehaviour
         hasSpeedPowerUp = true;
     }
 
+    public void RaccogliPowerUpJump()
+    {
+        hasJumpPowerUp = true;
+    }
+
     private void AttivaPowerUpSpeed()
     {
         Debug.Log("Power-up Speed attivato!");
         hasSpeedPowerUp = false;
         powerUpText.text = "";
         powerUpTimer = powerUpDuration;
+        activePowerUp = PowerUpType.Speed;
 
         Personaggio2 player = FindObjectOfType<Personaggio2>();
         if (player != null)
         {
             player.AttivaSpeedBoost(powerUpDuration);
+        }
+    }
+
+    private void AttivaPowerUpJump()
+    {
+        Debug.Log("Power-up Jump attivato!");
+        hasJumpPowerUp = false;
+        powerUpText.text = "";
+        powerUpTimer = powerUpDuration;
+        activePowerUp = PowerUpType.Jump;
+
+        Personaggio2 player = FindObjectOfType<Personaggio2>();
+        if (player != null)
+        {
+            player.AttivaJumpBoost(powerUpDuration);
+        }
+    }
+
+    private void DisattivaPowerUp()
+    {
+        Debug.Log("Power-up terminato.");
+        powerUpText.text = "";
+        activePowerUp = PowerUpType.None;
+
+        Personaggio2 player = FindObjectOfType<Personaggio2>();
+        if (player != null)
+        {
+            player.DisattivaPowerUps();
         }
     }
 }
