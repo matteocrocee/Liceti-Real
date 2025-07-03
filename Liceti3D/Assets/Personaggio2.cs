@@ -1,11 +1,10 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Personaggio2 : MonoBehaviour
 {
     public float moveSpeed = 7.0f;
+    public float boostedSpeed = 12.0f;       // velocità power-up
     public float rotationSpeed = 400.0f;
     public float jumpHeight = 0.56f;
     public float gravity = -9.81f;
@@ -13,9 +12,10 @@ public class Personaggio2 : MonoBehaviour
     public Transform cameraTransform;
 
     private CharacterController characterController;
-    private Vector3 velocity;
-    private float currentAngle;
-    private float angleVelocity;
+    private Vector3 velocity; // Per il salto/gravity
+    private float angleVelocity; // Per rotazione fluida
+
+    private bool isSpeedBoosted = false;
 
     void Start()
     {
@@ -29,77 +29,68 @@ public class Personaggio2 : MonoBehaviour
 
     void Update()
     {
-        float horizontalInput = Input.GetAxis("Horizontal");
-        float verticalInput = Input.GetAxis("Vertical");
-
-        Vector3 moveDirection = new Vector3(horizontalInput, 0, verticalInput).normalized;
-        Vector3 movement = moveDirection * moveSpeed * Time.deltaTime;
-
-        // Debug con tasti specifici
-        if (Input.GetKey(KeyCode.W))
-        {
-            Debug.Log("Premuto W");
-            transform.position = Vector3.forward * Time.deltaTime * moveSpeed;
-        }
-        else if (Input.GetKey(KeyCode.S))
-        {
-            Debug.Log("premuto S");
-            transform.position = Vector3.back * Time.deltaTime * moveSpeed;
-        }
-
-        if (Input.GetKey(KeyCode.A))
-        {
-            Debug.Log("premuto A");
-            transform.position = Vector3.left * Time.deltaTime * moveSpeed;
-        }
-
-        else if (Input.GetKey(KeyCode.D))
-        {
-            Debug.Log("premuto D");
-            transform.position = Vector3.right * Time.deltaTime * moveSpeed;
-        }
-
+        // --- INPUT MOVIMENTO ORIZZONTALE ---
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
-        // Direzione basata sulla camera
+        Vector3 inputDir = new Vector3(h, 0, v).normalized;
+
+        // --- MOVIMENTO RELATIVO ALLA CAMERA ---
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
-
-        // Elimina il movimento verticale
         forward.y = 0f;
         right.y = 0f;
         forward.Normalize();
         right.Normalize();
 
-        moveDirection = (forward * v + right * h).normalized;
+        Vector3 moveDirection = (forward * v + right * h).normalized;
 
-        characterController.Move(moveDirection * moveSpeed * Time.deltaTime);
-
-        // Rotazione
-        if (moveDirection != Vector3.zero)
+        // --- ROTAZIONE FLUIDA ---
+        if (moveDirection.magnitude >= 0.1f)
         {
-            Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
+            float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
+            float smoothedAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref angleVelocity, rotationSmoothTime);
+            transform.rotation = Quaternion.Euler(0f, smoothedAngle, 0f);
         }
 
-        // Gravità e salto
+        // --- SALTO E GRAVITÀ ---
         if (characterController.isGrounded)
         {
-            velocity.y = -1f;
+            velocity.y = -1f; // Tiene il personaggio incollato a terra
 
             if (Input.GetButtonDown("Jump"))
             {
-                velocity.y = Mathf.Sqrt(jumpHeight * 2 * -gravity);
+                velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity); // Calcolo fisico del salto
             }
         }
         else
         {
-            velocity.y += gravity * Time.deltaTime;
+            velocity.y += gravity * Time.deltaTime; // Applica gravità quando in aria
         }
 
-        movement.y = velocity.y * Time.deltaTime;
+        // --- MOVIMENTO COMPLESSIVO (orizzontale + verticale) ---
+        float speed = isSpeedBoosted ? boostedSpeed : moveSpeed;
+        Vector3 finalMove = moveDirection * speed;
+        finalMove.y = velocity.y; // aggiunge movimento verticale
+        characterController.Move(finalMove * Time.deltaTime);
+    }
 
-        characterController.Move(movement);
+    // --- Metodi chiamati da GameManager ---
+
+    public void AttivaSpeedBoost(float durata)
+    {
+        if (!isSpeedBoosted)
+        {
+            StartCoroutine(SpeedBoostRoutine(durata));
+        }
+    }
+
+    private IEnumerator SpeedBoostRoutine(float durata)
+    {
+        isSpeedBoosted = true;
+        Debug.Log("Speed Boost attivato!");
+        yield return new WaitForSeconds(durata);
+        isSpeedBoosted = false;
+        Debug.Log("Speed Boost terminato!");
     }
 }

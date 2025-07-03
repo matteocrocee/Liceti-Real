@@ -2,15 +2,24 @@
 
 public class Coin : MonoBehaviour
 {
-    public int valore = 1; // valore della moneta
+    public int valore = 1;
+    public AudioClip coinSound; // ← assegnerai questo suono nell’Inspector
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            GameManager.Instance.AggiungiPunti(valore); // 👈 Chiama il GameManager
+            // Aggiunge punti
+            GameManager.Instance.AggiungiPunti(valore);
 
-            Destroy(gameObject); // distruggi la moneta
+            // Riproduce il suono della moneta
+            if (coinSound != null)
+            {
+                AudioSource.PlayClipAtPoint(coinSound, transform.position);
+            }
+
+            // Distrugge la moneta
+            Destroy(gameObject);
         }
     }
 }
