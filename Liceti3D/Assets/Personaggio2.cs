@@ -13,8 +13,9 @@ public class Personaggio2 : MonoBehaviour
     public Transform cameraTransform;
 
     private CharacterController characterController;
-    private Vector3 velocity; // Per il salto/gravity
-    private float angleVelocity; // Per rotazione fluida
+    private Vector3 velocity;
+    private float currentAngle;
+    private float angleVelocity;
 
     void Start()
     {
@@ -28,52 +29,77 @@ public class Personaggio2 : MonoBehaviour
 
     void Update()
     {
-        // --- INPUT MOVIMENTO ORIZZONTALE ---
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
+
+        Vector3 moveDirection = new Vector3(horizontalInput, 0, verticalInput).normalized;
+        Vector3 movement = moveDirection * moveSpeed * Time.deltaTime;
+
+        // Debug con tasti specifici
+        if (Input.GetKey(KeyCode.W))
+        {
+            Debug.Log("Premuto W");
+            transform.position = Vector3.forward * Time.deltaTime * moveSpeed;
+        }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            Debug.Log("premuto S");
+            transform.position = Vector3.back * Time.deltaTime * moveSpeed;
+        }
+
+        if (Input.GetKey(KeyCode.A))
+        {
+            Debug.Log("premuto A");
+            transform.position = Vector3.left * Time.deltaTime * moveSpeed;
+        }
+
+        else if (Input.GetKey(KeyCode.D))
+        {
+            Debug.Log("premuto D");
+            transform.position = Vector3.right * Time.deltaTime * moveSpeed;
+        }
+
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
-        Vector3 inputDir = new Vector3(h, 0, v).normalized;
-
-        // --- MOVIMENTO RELATIVO ALLA CAMERA ---
+        // Direzione basata sulla camera
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
+
+        // Elimina il movimento verticale
         forward.y = 0f;
         right.y = 0f;
         forward.Normalize();
         right.Normalize();
 
-        Vector3 moveDirection = (forward * v + right * h).normalized;
+        moveDirection = (forward * v + right * h).normalized;
 
-        // --- ROTAZIONE FLUIDA ---
-        if (moveDirection.magnitude >= 0.1f)
+        characterController.Move(moveDirection * moveSpeed * Time.deltaTime);
+
+        // Rotazione
+        if (moveDirection != Vector3.zero)
         {
-            float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
-            float smoothedAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref angleVelocity, rotationSmoothTime);
-            transform.rotation = Quaternion.Euler(0f, smoothedAngle, 0f);
+            Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
         }
 
-        // --- SALTO E GRAVITÀ ---
+        // Gravità e salto
         if (characterController.isGrounded)
         {
-            velocity.y = -1f; // Tiene il personaggio incollato a terra
+            velocity.y = -1f;
 
             if (Input.GetButtonDown("Jump"))
             {
-                velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity); // Calcolo fisico del salto
+                velocity.y = Mathf.Sqrt(jumpHeight * 2 * -gravity);
             }
         }
         else
         {
-            velocity.y += gravity * Time.deltaTime; // Applica gravità quando in aria
+            velocity.y += gravity * Time.deltaTime;
         }
 
-        // --- MOVIMENTO COMPLESSIVO (orizzontale + verticale) ---
-        Vector3 finalMove = moveDirection * moveSpeed;
-        finalMove.y = velocity.y; // aggiunge movimento verticale
-        characterController.Move(finalMove * Time.deltaTime);
+        movement.y = velocity.y * Time.deltaTime;
 
-        // --- DEBUG (rimosso movimento errato con transform.position) ---
-        // Ho rimosso la parte con `transform.position = ...` perché va contro l'uso corretto del CharacterController.
-        // Se vuoi debug visivi, puoi usare Debug.DrawRay oppure Debug.Log senza muovere manualmente l'oggetto.
+        characterController.Move(movement);
     }
 }

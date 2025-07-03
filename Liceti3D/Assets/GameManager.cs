@@ -5,7 +5,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public int punteggio = 0;
+    public int Coin = 0;
     public TextMeshProUGUI punteggioText;
 
     private void Awake()
@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
 
     public void AggiungiPunti(int valore)
     {
-        punteggio += valore;
+        Coin += valore;
         AggiornaUI();
     }
 
@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
     {
         if (punteggioText != null)
         {
-            punteggioText.text = "Punti: " + punteggio;
+            punteggioText.text = "Coin: " + Coin;
         }
     }
 }
