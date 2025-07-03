@@ -52,12 +52,10 @@ public class EnemyChaser : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            // Qui distruggi o elimina il player
-            // Esempio: distruggi il giocatore
-            Destroy(collision.gameObject);
-
-            // Oppure puoi chiamare un metodo di gestione morte player, tipo:
-            // collision.gameObject.SendMessage("Die", SendMessageOptions.DontRequireReceiver);
+            FindObjectOfType<gameemanagerrr>().ShowGameOver();
+            Destroy(collision.gameObject); // se vuoi distruggere il giocatore
         }
     }
+
+
 }
