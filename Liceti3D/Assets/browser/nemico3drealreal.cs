@@ -1,42 +1,51 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyPatrol : MonoBehaviour
 {
-    public Transform[] waypoints;      // Array di punti (A,B,C,D,E) da assegnare dall'Inspector
-    public float speed = 3f;           // Velocità di movimento
-    public int damage = 10;            // Danno inflitto al giocatore
-    public float damageCooldown = 1f;  // Tempo minimo tra i danni consecutivi
+    public Transform[] waypoints;          // Punti da seguire
+    public float waypointTolerance = 0.5f; // Distanza minima per considerare un punto raggiunto
+    public float speed = 3.5f;             // Velocità del nemico
+    public Transform player;               // Riferimento al giocatore
 
     private int currentWaypointIndex = 0;
-    private float lastDamageTime = 0f;
+    private NavMeshAgent agent;
 
-    void Update()
+    void Start()
     {
-        if (waypoints.Length == 0) return;
-
-        // Movimento verso il waypoint corrente
-        Transform targetWaypoint = waypoints[currentWaypointIndex];
-        Vector3 direction = (targetWaypoint.position - transform.position).normalized;
-        transform.position += direction * speed * Time.deltaTime;
-
-        // Se vicino al waypoint, passa al prossimo
-        if (Vector3.Distance(transform.position, targetWaypoint.position) < 0.1f)
+        agent = GetComponent<NavMeshAgent>();
+        if (agent == null)
         {
-            currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+            Debug.LogError("Aggiungi un NavMeshAgent al nemico!");
+            return;
+        }
+
+        agent.speed = speed;
+
+        if (waypoints.Length > 0)
+        {
+            agent.SetDestination(waypoints[0].position);
         }
     }
 
-    private void OnCollisionStay(Collision collision)
+    void Update()
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (waypoints.Length == 0)
+            return;
+
+        if (!agent.pathPending && agent.remainingDistance < waypointTolerance)
         {
-            // Controlla cooldown per non infliggere danno troppo frequentemente
-            if (Time.time - lastDamageTime > damageCooldown)
-            {
-                // Assumiamo che il Player abbia uno script con metodo TakeDamage(int)
-                collision.gameObject.SendMessage("TakeDamage", damage, SendMessageOptions.DontRequireReceiver);
-                lastDamageTime = Time.time;
-            }
+            currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+            agent.SetDestination(waypoints[currentWaypointIndex].position);
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject == player.gameObject)
+        {
+            Destroy(player.gameObject); // Elimina il giocatore
+            Debug.Log("Giocatore eliminato dal nemico!");
         }
     }
 }
