@@ -1,41 +1,41 @@
 using UnityEngine;
 
-public class EnemyPatrolAndDamage : MonoBehaviour
+public class EnemyPatrol : MonoBehaviour
 {
-    public Transform puntoA;
-    public Transform puntoB;
-    public float speed = 3f;
-    public int damage = 10;
+    public Transform[] waypoints;      // Array di punti (A,B,C,D,E) da assegnare dall'Inspector
+    public float speed = 3f;           // Velocità di movimento
+    public int damage = 10;            // Danno inflitto al giocatore
+    public float damageCooldown = 1f;  // Tempo minimo tra i danni consecutivi
 
-    private Transform target;
+    private int currentWaypointIndex = 0;
+    private float lastDamageTime = 0f;
 
-    private void Start()
+    void Update()
     {
-        target = puntoB; // Inizia andando verso puntoB
-    }
+        if (waypoints.Length == 0) return;
 
-    private void Update()
-    {
-        // Movimento verso il target
-        transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
+        // Movimento verso il waypoint corrente
+        Transform targetWaypoint = waypoints[currentWaypointIndex];
+        Vector3 direction = (targetWaypoint.position - transform.position).normalized;
+        transform.position += direction * speed * Time.deltaTime;
 
-        // Se raggiungo il target, cambio direzione
-        if (Vector3.Distance(transform.position, target.position) < 0.1f)
+        // Se vicino al waypoint, passa al prossimo
+        if (Vector3.Distance(transform.position, targetWaypoint.position) < 0.1f)
         {
-            target = (target == puntoA) ? puntoB : puntoA;
+            currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnCollisionStay(Collision collision)
     {
-        // Controlla se ha toccato il giocatore (assumo che il giocatore abbia il tag "Player")
         if (collision.gameObject.CompareTag("Player"))
         {
-            // Prendo il componente del giocatore che gestisce la salute
-            PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
-            if (playerHealth != null)
+            // Controlla cooldown per non infliggere danno troppo frequentemente
+            if (Time.time - lastDamageTime > damageCooldown)
             {
-                playerHealth.TakeDamage(damage);
+                // Assumiamo che il Player abbia uno script con metodo TakeDamage(int)
+                collision.gameObject.SendMessage("TakeDamage", damage, SendMessageOptions.DontRequireReceiver);
+                lastDamageTime = Time.time;
             }
         }
     }
