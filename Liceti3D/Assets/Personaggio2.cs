@@ -7,11 +7,15 @@ public class Personaggio2 : MonoBehaviour
 {
     public float moveSpeed = 7.0f;
     public float rotationSpeed = 400.0f;
-    public float jumpHeight = 10000.0f;
+    public float jumpHeight = 0.56f;
     public float gravity = -9.81f;
+    public float rotationSmoothTime = 0.1f;
+    public Transform cameraTransform;
 
     private CharacterController characterController;
     private Vector3 velocity;
+    private float currentAngle;
+    private float angleVelocity;
 
     void Start()
     {
@@ -49,11 +53,28 @@ public class Personaggio2 : MonoBehaviour
             transform.position = Vector3.left * Time.deltaTime * moveSpeed;
         }
 
-        else if ( Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.D))
         {
             Debug.Log("premuto D");
             transform.position = Vector3.right * Time.deltaTime * moveSpeed;
         }
+
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+
+        // Direzione basata sulla camera
+        Vector3 forward = cameraTransform.forward;
+        Vector3 right = cameraTransform.right;
+
+        // Elimina il movimento verticale
+        forward.y = 0f;
+        right.y = 0f;
+        forward.Normalize();
+        right.Normalize();
+
+        moveDirection = (forward * v + right * h).normalized;
+
+        characterController.Move(moveDirection * moveSpeed * Time.deltaTime);
 
         // Rotazione
         if (moveDirection != Vector3.zero)
@@ -65,7 +86,7 @@ public class Personaggio2 : MonoBehaviour
         // Gravità e salto
         if (characterController.isGrounded)
         {
-            velocity.y = -0.5f;
+            velocity.y = -1f;
 
             if (Input.GetButtonDown("Jump"))
             {
