@@ -36,7 +36,6 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        // Se ho un power-up Speed da attivare
         if (hasSpeedPowerUp)
         {
             powerUpText.text = "Premi E per attivare Speed!";
@@ -46,7 +45,6 @@ public class GameManager : MonoBehaviour
                 AttivaPowerUpSpeed();
             }
         }
-        // Se ho un power-up Jump da attivare
         else if (hasJumpPowerUp)
         {
             powerUpText.text = "Premi F per attivare Jump!";
@@ -57,7 +55,6 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // Gestione durata power-up attivi
         if (powerUpTimer > 0f)
         {
             powerUpTimer -= Time.deltaTime;
@@ -81,19 +78,16 @@ public class GameManager : MonoBehaviour
             punteggioText.text = "Punteggio: " + punteggio;
     }
 
-    // Metodo da chiamare quando si raccoglie un power-up Speed nel gioco
     public void RaccogliPowerUpSpeed()
     {
         hasSpeedPowerUp = true;
     }
 
-    // Metodo da chiamare quando si raccoglie un power-up Jump nel gioco
     public void RaccogliPowerUpJump()
     {
         hasJumpPowerUp = true;
     }
 
-    // Attiva power-up Speed, parte durata e notifica personaggio
     private void AttivaPowerUpSpeed()
     {
         Debug.Log("Power-up Speed attivato!");
@@ -109,7 +103,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Attiva power-up Jump, parte durata e notifica personaggio
     private void AttivaPowerUpJump()
     {
         Debug.Log("Power-up Jump attivato!");
@@ -125,7 +118,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Disattiva power-up e resetta stato
     private void DisattivaPowerUp()
     {
         Debug.Log("Power-up terminato.");

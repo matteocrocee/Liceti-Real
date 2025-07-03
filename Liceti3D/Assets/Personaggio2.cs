@@ -5,6 +5,7 @@ public class Personaggio2 : MonoBehaviour
 {
     public float moveSpeed = 7.0f;
     public float boostedSpeed = 12.0f;
+    public float sprintSpeed = 15.0f;        // Velocità corsa con Shift
     public float rotationSpeed = 400.0f;
     public float jumpHeight = 0.56f;
     public float boostedJumpHeight = 1.2f;
@@ -31,11 +32,13 @@ public class Personaggio2 : MonoBehaviour
 
     void Update()
     {
+        // Input movimento orizzontale
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
         Vector3 inputDir = new Vector3(h, 0, v).normalized;
 
+        // Movimento relativo alla camera
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
         forward.y = 0f;
@@ -45,6 +48,7 @@ public class Personaggio2 : MonoBehaviour
 
         Vector3 moveDirection = (forward * v + right * h).normalized;
 
+        // Rotazione fluida verso direzione movimento
         if (moveDirection.magnitude >= 0.1f)
         {
             float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
@@ -52,9 +56,10 @@ public class Personaggio2 : MonoBehaviour
             transform.rotation = Quaternion.Euler(0f, smoothedAngle, 0f);
         }
 
+        // Salto e gravità
         if (characterController.isGrounded)
         {
-            velocity.y = -1f;
+            velocity.y = -1f; // Incolla a terra
 
             if (Input.GetButtonDown("Jump"))
             {
@@ -67,7 +72,17 @@ public class Personaggio2 : MonoBehaviour
             velocity.y += gravity * Time.deltaTime;
         }
 
-        float speed = isSpeedBoosted ? boostedSpeed : moveSpeed;
+        // Calcolo velocità base (normal / speed boost)
+        float baseSpeed = isSpeedBoosted ? boostedSpeed : moveSpeed;
+        float speed = baseSpeed;
+
+        // Sprint con Left Shift solo se stai muovendo
+        if (Input.GetKey(KeyCode.LeftShift) && moveDirection.magnitude > 0.1f)
+        {
+            speed = sprintSpeed;
+        }
+
+        // Movimento finale con velocità e gravità
         Vector3 finalMove = moveDirection * speed;
         finalMove.y = velocity.y;
         characterController.Move(finalMove * Time.deltaTime);
@@ -109,7 +124,7 @@ public class Personaggio2 : MonoBehaviour
         Debug.Log("Jump Boost terminato!");
     }
 
-    // Reset di tutti i power-up (speed e jump)
+    // Disattiva tutti i power-up (speed e jump)
     public void DisattivaPowerUps()
     {
         isSpeedBoosted = false;
