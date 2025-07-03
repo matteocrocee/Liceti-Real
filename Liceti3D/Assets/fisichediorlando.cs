@@ -39,7 +39,7 @@ public class PhysicsObject : MonoBehaviour
     void ResetObject()
     {
         // Disabilita momentaneamente la fisica per evitare comportamenti strani
-        rb.isKinematic = false;
+        rb.isKinematic = true;
 
         // Reset posizione e rotazione
         transform.position = initialPosition;
