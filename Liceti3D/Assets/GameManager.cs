@@ -10,15 +10,12 @@ public class GameManager : MonoBehaviour
     public TMP_Text powerUpText;
 
     private int punteggio = 0;
-
     private bool hasSpeedPowerUp = false;
-    private bool hasJumpPowerUp = false;
-
+    private bool isSpeedBoostActive = false;
     private float powerUpDuration = 5f;
     private float powerUpTimer = 0f;
 
-    private enum PowerUpType { None, Speed, Jump }
-    private PowerUpType activePowerUp = PowerUpType.None;
+    private Personaggio2 player;
 
     void Awake()
     {
@@ -32,37 +29,33 @@ public class GameManager : MonoBehaviour
     {
         AggiornaPunteggioUI();
         powerUpText.text = "";
+        player = FindObjectOfType<Personaggio2>();
     }
 
     void Update()
     {
-        if (hasSpeedPowerUp)
+        if (hasSpeedPowerUp && !isSpeedBoostActive)
         {
             powerUpText.text = "Premi E per attivare Speed!";
-
             if (Input.GetKeyDown(KeyCode.E))
             {
                 AttivaPowerUpSpeed();
             }
         }
-        else if (hasJumpPowerUp)
-        {
-            powerUpText.text = "Premi F per attivare Jump!";
 
-            if (Input.GetKeyDown(KeyCode.F))
-            {
-                AttivaPowerUpJump();
-            }
-        }
-
-        if (powerUpTimer > 0f)
+        if (isSpeedBoostActive)
         {
             powerUpTimer -= Time.deltaTime;
             if (powerUpTimer <= 0f)
             {
                 powerUpTimer = 0f;
-                DisattivaPowerUp();
+                DisattivaPowerUpSpeed();
             }
+        }
+
+        if (player != null && !isSpeedBoostActive)
+        {
+            player.CorsaNormale(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
         }
     }
 
@@ -81,53 +74,25 @@ public class GameManager : MonoBehaviour
     public void RaccogliPowerUpSpeed()
     {
         hasSpeedPowerUp = true;
-    }
-
-    public void RaccogliPowerUpJump()
-    {
-        hasJumpPowerUp = true;
+        powerUpText.text = "Premi E per attivare Speed!";
     }
 
     private void AttivaPowerUpSpeed()
     {
-        Debug.Log("Power-up Speed attivato!");
+        if (player == null) return;
+
+        isSpeedBoostActive = true;
         hasSpeedPowerUp = false;
-        powerUpText.text = "";
+        powerUpText.text = "Speed attivo!";
         powerUpTimer = powerUpDuration;
-        activePowerUp = PowerUpType.Speed;
 
-        Personaggio2 player = FindObjectOfType<Personaggio2>();
-        if (player != null)
-        {
-            player.AttivaSpeedBoost(powerUpDuration);
-        }
+        player.AttivaSpeedBoost(powerUpDuration);
     }
 
-    private void AttivaPowerUpJump()
+    private void DisattivaPowerUpSpeed()
     {
-        Debug.Log("Power-up Jump attivato!");
-        hasJumpPowerUp = false;
+        isSpeedBoostActive = false;
         powerUpText.text = "";
-        powerUpTimer = powerUpDuration;
-        activePowerUp = PowerUpType.Jump;
-
-        Personaggio2 player = FindObjectOfType<Personaggio2>();
-        if (player != null)
-        {
-            player.AttivaJumpBoost(powerUpDuration);
-        }
-    }
-
-    private void DisattivaPowerUp()
-    {
-        Debug.Log("Power-up terminato.");
-        powerUpText.text = "";
-        activePowerUp = PowerUpType.None;
-
-        Personaggio2 player = FindObjectOfType<Personaggio2>();
-        if (player != null)
-        {
-            player.DisattivaPowerUps();
-        }
+        player.DisattivaSpeedBoost();
     }
 }
