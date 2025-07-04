@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 2330788921919065509}
   - component: {fileID: 1791395528024920296}
   - component: {fileID: 3574331436235127795}
-  - component: {fileID: 1508010158929245210}
   m_Layer: 0
   m_Name: Fabrizio
   m_TagString: Player
@@ -158,15 +157,3 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1508010158929245210
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3803539927351504351}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa6033c4e696c6d4e9911b413b7cf08f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
