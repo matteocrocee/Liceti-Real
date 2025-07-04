@@ -4,7 +4,7 @@ using UnityEngine;
 public class Personaggio2 : MonoBehaviour
 {
     public float moveSpeed = 7.0f;
-    public float boostedSpeed = 12.0f;       // velocità power-up
+    public float runSpeed = 12.0f; // Velocità durante la corsa
     public float rotationSpeed = 400.0f;
     public float jumpHeight = 0.56f;
     public float gravity = -9.81f;
@@ -12,10 +12,8 @@ public class Personaggio2 : MonoBehaviour
     public Transform cameraTransform;
 
     private CharacterController characterController;
-    private Vector3 velocity; // Per il salto/gravity
-    private float angleVelocity; // Per rotazione fluida
-
-    private bool isSpeedBoosted = false;
+    private Vector3 velocity;
+    private float angleVelocity;
 
     void Start()
     {
@@ -56,41 +54,27 @@ public class Personaggio2 : MonoBehaviour
         // --- SALTO E GRAVITÀ ---
         if (characterController.isGrounded)
         {
-            velocity.y = -1f; // Tiene il personaggio incollato a terra
+            velocity.y = -1f;
 
             if (Input.GetButtonDown("Jump"))
             {
-                velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity); // Calcolo fisico del salto
+                velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             }
         }
         else
         {
-            velocity.y += gravity * Time.deltaTime; // Applica gravità quando in aria
+            velocity.y += gravity * Time.deltaTime;
         }
 
-        // --- MOVIMENTO COMPLESSIVO (orizzontale + verticale) ---
-        float speed = isSpeedBoosted ? boostedSpeed : moveSpeed;
+        // --- CORSA CON SHIFT ---
+        bool isRunning = Input.GetKey(KeyCode.LeftShift);
+        float speed = isRunning ? runSpeed : moveSpeed;
+
+        // --- MOVIMENTO COMPLESSIVO ---
         Vector3 finalMove = moveDirection * speed;
-        finalMove.y = velocity.y; // aggiunge movimento verticale
+        finalMove.y = velocity.y;
         characterController.Move(finalMove * Time.deltaTime);
     }
-
-    // --- Metodi chiamati da GameManager ---
-
-    public void AttivaSpeedBoost(float durata)
-    {
-        if (!isSpeedBoosted)
-        {
-            StartCoroutine(SpeedBoostRoutine(durata));
-        }
-    }
-
-    private IEnumerator SpeedBoostRoutine(float durata)
-    {
-        isSpeedBoosted = true;
-        Debug.Log("Speed Boost attivato!");
-        yield return new WaitForSeconds(durata);
-        isSpeedBoosted = false;
-        Debug.Log("Speed Boost terminato!");
-    }
 }
+
+ 

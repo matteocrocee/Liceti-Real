@@ -157,7 +157,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 7
-  sprintSpeed: 15
+  runSpeed: 12
+  rotationSpeed: 400
+  jumpHeight: 2
+  gravity: -9.81
+  rotationSmoothTime: 0.1
+  cameraTransform: {fileID: 1774132304}
 --- !u!135 &62558925
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -606,7 +611,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 606fe5d37d8a942498385e1fc78e6253, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupSound: {fileID: 0}
 --- !u!136 &851144937
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -725,7 +729,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   punteggioText: {fileID: 1932772846}
-  powerUpText: {fileID: 1531396610}
 --- !u!4 &936977197
 Transform:
   m_ObjectHideFlags: 0
@@ -859,7 +862,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ad1aeb5c15f47c4d96fbaebcbe55580, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupSound: {fileID: 0}
 --- !u!1 &1197904758
 GameObject:
   m_ObjectHideFlags: 0
