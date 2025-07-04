@@ -149,7 +149,8 @@ MonoBehaviour:
   detectionRadius: 10
   speed: 2
   maxHits: 2
-  raycastLength: 1.5
+  headKillOffset: 0.4
+  deathSound: {fileID: 8300000, guid: 9cc40d15acde44545959c01e0166a9b6, type: 3}
 --- !u!114 &7846665503146941215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f66951135fc7c0c4483b0d5a76ef05df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 8917871124013635359, guid: 5a91b4f60b4e6a44a8c6c50d8cf5fe96, type: 3}
   firePoint: {fileID: 2630266082942540029}
   projectileSpeed: 5
   fireRate: 5

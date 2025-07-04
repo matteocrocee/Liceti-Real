@@ -1,156 +1,80 @@
 ﻿using UnityEngine;
 using TMPro;
-using System;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    [Header("UI Elements")]
-    public TMP_Text punteggioText;
-    public TMP_Text powerUpText;  // Testo per power-up
+    [Header("UI")]
+    public TextMeshProUGUI puntiText;
+    public TextMeshProUGUI speedInstantKillText;
+    public TextMeshProUGUI powerJumpText;
 
-    private int punteggio = 0;
-
-    private bool hasSpeedInstantKill = false;
-    private bool speedInstantKillActive = false;
-
-    private bool hasPowerJump = false;
-    private bool powerJumpActive = false;
-
-    private float powerUpDuration = 5f;
-    private float powerUpTimer = 0f;
-
+    private int punti = 0;
     private Personaggio2 player;
 
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
+        {
             Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
         else
+        {
             Destroy(gameObject);
+        }
     }
 
-    void Start()
+    private void Start()
     {
-        AggiornaPunteggioUI();
-        powerUpText.text = "";
         player = FindObjectOfType<Personaggio2>();
-    }
-
-    void Update()
-    {
-        // Gestione Speed Instant Kill
-        if (hasSpeedInstantKill && !speedInstantKillActive)
-        {
-            powerUpText.text = "Premi E per attivare Speed Instant Kill!";
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                AttivaPowerUpSpeedInstantKill();
-            }
-        }
-
-        if (speedInstantKillActive)
-        {
-            powerUpTimer -= Time.deltaTime;
-            if (powerUpTimer <= 0f)
-            {
-                DisattivaPowerUpSpeedInstantKill();
-            }
-        }
-
-        // Gestione Power Jump
-        else if (hasPowerJump && !powerJumpActive)
-        {
-            powerUpText.text = "Premi E per attivare Power Jump!";
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                AttivaPowerUpJump();
-            }
-        }
-
-        if (powerJumpActive)
-        {
-            powerUpTimer -= Time.deltaTime;
-            if (powerUpTimer <= 0f)
-            {
-                DisattivaPowerUpJump();
-            }
-        }
-
-        // Se nessun power-up attivo o pronto, pulisco il testo
-        if (!hasSpeedInstantKill && !speedInstantKillActive && !hasPowerJump && !powerJumpActive)
-        {
-            powerUpText.text = "";
-        }
+        AggiornaPuntiUI();
+        speedInstantKillText.gameObject.SetActive(false);
+        powerJumpText.gameObject.SetActive(false);
     }
 
     public void AggiungiPunti(int valore)
     {
-        punteggio += valore;
-        AggiornaPunteggioUI();
+        punti += valore;
+        AggiornaPuntiUI();
     }
 
-    private void AggiornaPunteggioUI()
+    private void AggiornaPuntiUI()
     {
-        if (punteggioText != null)
-            punteggioText.text = "Coin: " + punteggio;
+        if (puntiText != null)
+            puntiText.text = "Punti: " + punti.ToString();
     }
 
-    // Power-Up Speed Instant Kill
-    public void RaccogliPowerUpSpeedInstantKill()
+    public void RaccogliSpeedInstantKill(float durata)
     {
-        hasSpeedInstantKill = true;
-        powerUpText.text = "Premi E per attivare Speed Instant Kill!";
+        if (player != null)
+        {
+            player.IniziaSpeedInstantKill(durata);
+            speedInstantKillText.gameObject.SetActive(true);
+            CancelInvoke(nameof(DisattivaSpeedInstantKillText));
+            Invoke(nameof(DisattivaSpeedInstantKillText), durata);
+        }
     }
 
-    private void AttivaPowerUpSpeedInstantKill()
+    private void DisattivaSpeedInstantKillText()
     {
-        if (player == null) return;
-
-        speedInstantKillActive = true;
-        hasSpeedInstantKill = false;
-        powerUpText.text = "Speed Instant Kill attivo!";
-        powerUpTimer = powerUpDuration;
-
-        player.IniziaSpeedInstantKill(powerUpDuration);
+        speedInstantKillText.gameObject.SetActive(false);
     }
 
-    private void DisattivaPowerUpSpeedInstantKill()
+    public void RaccogliPowerUpJump(float durata)
     {
-        speedInstantKillActive = false;
-        powerUpText.text = "";
-        player.FermaSpeedInstantKill();
+        if (player != null)
+        {
+            player.IniziaPowerJump(durata);
+            powerJumpText.gameObject.SetActive(true);
+            CancelInvoke(nameof(DisattivaPowerJumpText));
+            Invoke(nameof(DisattivaPowerJumpText), durata);
+        }
     }
 
-    // Power-Up Jump
-    public void RaccogliPowerUpJump()
+    private void DisattivaPowerJumpText()
     {
-        hasPowerJump = true;
-        powerUpText.text = "Premi E per attivare Power Jump!";
-    }
-
-    private void AttivaPowerUpJump()
-    {
-        if (player == null) return;
-
-        powerJumpActive = true;
-        hasPowerJump = false;
-        powerUpText.text = "Power Jump attivo!";
-        powerUpTimer = powerUpDuration;
-
-        player.IniziaPowerJump(powerUpDuration);
-    }
-
-    private void DisattivaPowerUpJump()
-    {
-        powerJumpActive = false;
-        powerUpText.text = "";
-        player.FermaPowerJump();
-    }
-
-    internal void MostraPulsanteRespawn()
-    {
-        throw new NotImplementedException();
+        powerJumpText.gameObject.SetActive(false);
     }
 }

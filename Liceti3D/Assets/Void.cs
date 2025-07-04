@@ -1,37 +1,22 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Collider))]
 public class Void : MonoBehaviour
 {
-    private void Start()
-    {
-        // Rende invisibile il Mesh Renderer (se presente)
-        MeshRenderer renderer = GetComponent<MeshRenderer>();
-        if (renderer != null)
-        {
-            renderer.enabled = false;
-        }
-
-        // Assicura che il collider sia trigger
-        Collider col = GetComponent<Collider>();
-        if (col != null)
-        {
-            col.isTrigger = true;
-        }
-        else
-        {
-            Debug.LogError("Nessun Collider trovato sulla piattaforma!");
-        }
-    }
+    public AudioClip voidFallSound; // Suono da riprodurre quando cade (opzionale)
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            Personaggio2 player = other.GetComponent<Personaggio2>();
-            if (player != null)
+            Personaggio2 p = other.GetComponent<Personaggio2>();
+            if (p != null)
             {
-                player.TriggerRespawnFromFalling();
+                // (Opzionale) Suono caduta
+                if (voidFallSound != null)
+                    AudioSource.PlayClipAtPoint(voidFallSound, p.transform.position);
+
+                Debug.Log("Il giocatore è caduto nel vuoto!");
+                p.Muori(); // Respawn istantaneo
             }
         }
     }

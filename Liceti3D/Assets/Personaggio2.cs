@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class Personaggio2 : MonoBehaviour
@@ -16,14 +15,12 @@ public class Personaggio2 : MonoBehaviour
     public float rotationSmoothTime = 0.1f;
     public Transform cameraTransform;
 
-    public float fallThresholdY = -10f; // altezza sotto la quale si considera caduto
-
     private CharacterController characterController;
     private Vector3 velocity;
     private float angleVelocity;
     private bool isDashing = false;
 
-    private bool speedInstantKillActive = false;
+    public bool speedInstantKillActive = false;
     private bool powerJumpActive = false;
 
     private Vector3 respawnPosition;
@@ -33,32 +30,47 @@ public class Personaggio2 : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         if (characterController == null)
         {
-            Debug.LogError("CharacterController non trovato!");
+            Debug.LogError("CharacterController not found! Please add it to the GameObject.");
             enabled = false;
         }
 
         if (cameraTransform == null)
+        {
             cameraTransform = Camera.main.transform;
+        }
 
-        respawnPosition = transform.position;
+        respawnPosition = transform.position; // Salva la posizione iniziale come spawn
     }
 
     void Update()
     {
-        if (isDashing) return;
+        // Respawn automatico se cade sotto una certa altezza
+        if (transform.position.y < -10f)
+        {
+            Respawn();
+            return; // interrompe Update per evitare conflitti
+        }
 
+        if (isDashing)
+            return; // Blocca input e movimento normale durante il dash
+
+        // Input movimento orizzontale
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
         Vector3 inputDir = new Vector3(h, 0, v).normalized;
 
+        // Movimento relativo alla camera
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
-        forward.y = 0f; right.y = 0f;
-        forward.Normalize(); right.Normalize();
+        forward.y = 0f;
+        right.y = 0f;
+        forward.Normalize();
+        right.Normalize();
 
         Vector3 moveDirection = (forward * v + right * h).normalized;
 
+        // Rotazione fluida
         if (moveDirection.magnitude >= 0.1f)
         {
             float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
@@ -66,13 +78,14 @@ public class Personaggio2 : MonoBehaviour
             transform.rotation = Quaternion.Euler(0f, smoothedAngle, 0f);
         }
 
+        // Salto e gravità (considera power jump)
         if (characterController.isGrounded)
         {
             velocity.y = -1f;
 
             if (Input.GetButtonDown("Jump"))
             {
-                float jumpPower = powerJumpActive ? jumpHeight * 2f : jumpHeight;
+                float jumpPower = powerJumpActive ? jumpHeight * 2f : jumpHeight; // salto potenziato se power-up attivo
                 velocity.y = Mathf.Sqrt(jumpPower * -2f * gravity);
             }
         }
@@ -81,51 +94,60 @@ public class Personaggio2 : MonoBehaviour
             velocity.y += gravity * Time.deltaTime;
         }
 
+        // Corsa con shift
         bool isRunning = Input.GetKey(KeyCode.LeftShift);
         float speed = isRunning ? runSpeed : moveSpeed;
 
+        // Movimento complessivo
         Vector3 finalMove = moveDirection * speed;
         finalMove.y = velocity.y;
         characterController.Move(finalMove * Time.deltaTime);
 
-        if (speedInstantKillActive && Input.GetKeyDown(KeyCode.Q) && !isDashing)
-            StartCoroutine(DashKill());
-
-        // Controlla se è caduto nel vuoto
-        if (transform.position.y < fallThresholdY)
+        // Dash instant kill: se power-up attivo, Q fa dash kill, altrimenti no
+        if (speedInstantKillActive)
         {
-            Respawn();
+            if (Input.GetKeyDown(KeyCode.Q) && !isDashing)
+            {
+                StartCoroutine(DashKill());
+            }
         }
     }
 
     IEnumerator DashKill()
     {
         isDashing = true;
+
         Vector3 dashDirection = transform.forward;
         float elapsedTime = 0f;
 
-        if (dashEffect != null) dashEffect.SetActive(true);
+        if (dashEffect != null)
+            dashEffect.SetActive(true);
 
         while (elapsedTime < dashDuration)
         {
             characterController.Move(dashDirection * dashSpeed * Time.deltaTime);
 
+            // Controlla collisione con nemici
             Collider[] hitEnemies = Physics.OverlapSphere(transform.position, 1.0f, enemyLayer);
             foreach (Collider enemy in hitEnemies)
             {
                 if (enemy.TryGetComponent(out EnemyPatrol enemyScript))
+                {
                     enemyScript.Muori();
+                }
             }
 
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        if (dashEffect != null) dashEffect.SetActive(false);
+        if (dashEffect != null)
+            dashEffect.SetActive(false);
 
         isDashing = false;
     }
 
+    // PowerUp methods
     public void IniziaSpeedInstantKill(float durata)
     {
         speedInstantKillActive = true;
@@ -137,7 +159,7 @@ public class Personaggio2 : MonoBehaviour
         speedInstantKillActive = false;
     }
 
-    IEnumerator SpeedInstantKillTimer(float durata)
+    private IEnumerator SpeedInstantKillTimer(float durata)
     {
         yield return new WaitForSeconds(durata);
         FermaSpeedInstantKill();
@@ -154,33 +176,34 @@ public class Personaggio2 : MonoBehaviour
         powerJumpActive = false;
     }
 
-    IEnumerator PowerJumpTimer(float durata)
+    private IEnumerator PowerJumpTimer(float durata)
     {
         yield return new WaitForSeconds(durata);
         FermaPowerJump();
     }
 
+    // Metodo chiamato da Enemy per uccidere il player
     public void Muori()
     {
         Respawn();
     }
 
+    // Respawn semplice e istantaneo
     private void Respawn()
     {
+        // Ferma velocità verticale
         velocity.y = 0f;
-        characterController.enabled = false;
+
+        // Teletrasporto alla posizione di spawn
+        characterController.enabled = false;  // Disabilita controller prima di spostare
         transform.position = respawnPosition;
-        characterController.enabled = true;
+        characterController.enabled = true;   // Riabilita controller
     }
 
+    // (Facoltativo) disegna il raggio dash in editor per debug
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, 1.0f);
-    }
-
-    internal void TriggerRespawnFromFalling()
-    {
-        throw new NotImplementedException();
     }
 }

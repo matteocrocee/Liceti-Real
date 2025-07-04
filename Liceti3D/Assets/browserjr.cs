@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyChaseWithHealth : MonoBehaviour
+public class browserjr : MonoBehaviour
 {
     public Transform player;
     public float detectionRadius = 8f;
@@ -40,20 +40,31 @@ public class EnemyChaseWithHealth : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!isAlive || collision.gameObject != player.gameObject)
+        if (!isAlive)
             return;
 
-        float playerBottomY = player.position.y;
-        float enemyTopY = transform.position.y + GetComponent<Collider>().bounds.extents.y;
+        if (collision.gameObject == player.gameObject)
+        {
+            // Controlla se il player ha speedInstantKill attivo
+            Personaggio2 p = player.GetComponent<Personaggio2>();
+            if (!(p == null || !p.speedInstantKillActive))
+            {
+                muori();
+                return;
+            }
 
-        if (playerBottomY > enemyTopY + headKillOffset)
-        {
-            HandleHeadHit();
-        }
-        else
-        {
-            Destroy(player.gameObject);
-            Debug.Log("Il nemico ha eliminato il giocatore.");
+            float playerBottomY = player.position.y;
+            float enemyTopY = transform.position.y + GetComponent<Collider>().bounds.extents.y;
+
+            if (playerBottomY > enemyTopY + headKillOffset)
+            {
+                HandleHeadHit();
+            }
+            else
+            {
+                Destroy(player.gameObject);
+                Debug.Log("Il nemico ha eliminato il giocatore.");
+            }
         }
     }
 
@@ -69,11 +80,11 @@ public class EnemyChaseWithHealth : MonoBehaviour
 
         if (currentHits >= maxHits)
         {
-            Die();
+            muori();
         }
     }
 
-    void Die()
+    void muori()
     {
         isAlive = false;
 
