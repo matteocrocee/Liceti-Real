@@ -71,7 +71,7 @@ public class Personaggio2 : MonoBehaviour
             transform.rotation = Quaternion.Euler(0f, smoothedAngle, 0f);
         }
 
-        // Salto e gravità (considera power jump)
+        // Salto e gravitï¿½ (considera power jump)
         if (characterController.isGrounded)
         {
             velocity.y = -1f;
@@ -186,7 +186,7 @@ public class Personaggio2 : MonoBehaviour
     // Respawn semplice e istantaneo
     private void Respawn()
     {
-        // Ferma velocità verticale
+        // Ferma velocitï¿½ verticale
         velocity.y = 0f;
 
         // Teletrasporto alla posizione di spawn

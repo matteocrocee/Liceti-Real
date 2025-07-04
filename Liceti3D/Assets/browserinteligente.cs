@@ -1,61 +1,72 @@
 using UnityEngine;
+using UnityEngine.AI;  // Per usare il NavMeshAgent (facilita il movimento)
 
-public class EnemyChaser : MonoBehaviour
+public class EnemyAI : MonoBehaviour
 {
-    public Transform player;         // Riferimento al giocatore da assegnare nell'Inspector
-    public float speed = 5f;         // Velocità di inseguimento
-    public float jumpForce = 7f;     // Forza del salto
-    public float groundCheckDistance = 0.2f;  // Distanza per controllare se è a terra
-    public LayerMask groundLayer;    // Layer del terreno
+    public Transform player; // Riferimento al giocatore
+    public float detectionRadius = 10f; // Raggio di rilevamento del giocatore
+    public Transform[] waypoints; // Punti del percorso da seguire
+    public float waypointTolerance = 0.5f; // Distanza minima per considerare il waypoint raggiunto
+    public float speed = 3.5f; // Velocità del nemico
 
-    private Rigidbody rb;
+    private int currentWaypointIndex = 0;
+    private NavMeshAgent agent;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        if (player == null)
-            Debug.LogWarning("Player non assegnato in EnemyChaser");
+        agent = GetComponent<NavMeshAgent>();
+        if (agent == null)
+        {
+            Debug.LogError("Aggiungi un NavMeshAgent al nemico!");
+        }
+        agent.speed = speed;
     }
 
     void Update()
     {
-        if (player == null) return;
+        if (player == null)
+            return;
 
-        Vector3 direction = (player.position - transform.position);
-        direction.y = 0;  // Muovi solo in orizzontale
-        direction.Normalize();
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        // Rotazione verso il giocatore
-        if (direction != Vector3.zero)
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 5f);
-
-        // Movimento avanti
-        Vector3 move = direction * speed;
-        Vector3 velocity = rb.velocity;
-        velocity.x = move.x;
-        velocity.z = move.z;
-        rb.velocity = velocity;
-
-        // Salto se a terra e vicino al giocatore (ad esempio distanza < 3)
-        if (IsGrounded() && Vector3.Distance(transform.position, player.position) < 3f)
+        if (distanceToPlayer <= detectionRadius)
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+            // Insegue il giocatore
+            agent.SetDestination(player.position);
+        }
+        else
+        {
+            // Segue il percorso predefinito
+            Patrol();
         }
     }
 
-    bool IsGrounded()
+    void Patrol()
     {
-        return Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, groundLayer);
+        if (waypoints.Length == 0)
+            return;
+
+        agent.SetDestination(waypoints[currentWaypointIndex].position);
+
+        if (Vector3.Distance(transform.position, waypoints[currentWaypointIndex].position) < waypointTolerance)
+        {
+            currentWaypointIndex++;
+            if (currentWaypointIndex >= waypoints.Length)
+            {
+                currentWaypointIndex = 0; // Riparte dal primo punto
+            }
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision.gameObject == player.gameObject)
         {
-            FindObjectOfType<gameemanagerrr>().ShowGameOver();
-            Destroy(collision.gameObject); // se vuoi distruggere il giocatore
+            // Elimina il giocatore (per esempio distruggi)
+            Destroy(player.gameObject);
+
+            // Qui puoi aggiungere ulteriori logiche come Game Over o ricaricare scena
+            Debug.Log("Giocatore eliminato!");
         }
     }
-
-
 }
