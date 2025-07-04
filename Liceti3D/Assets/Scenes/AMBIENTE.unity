@@ -2201,7 +2201,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   runSpeed: 12
-  rotationSpeed: 400
+  dashSpeed: 30
+  dashDuration: 0.2
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  dashEffect: {fileID: 0}
   jumpHeight: 0.56
   gravity: -9.81
   rotationSmoothTime: 1.28
