@@ -10,15 +10,11 @@ public class GameManager : MonoBehaviour
     public TMP_Text powerUpText;
 
     private int punteggio = 0;
-
-    private bool hasSpeedPowerUp = false;
-    private bool hasJumpPowerUp = false;
-
+    private bool hasSpeedInstantKill = false;
+    private bool speedInstantKillActive = false;
     private float powerUpDuration = 5f;
     private float powerUpTimer = 0f;
-
-    private enum PowerUpType { None, Speed, Jump }
-    private PowerUpType activePowerUp = PowerUpType.None;
+    private Personaggio2 player;
 
     void Awake()
     {
@@ -32,36 +28,26 @@ public class GameManager : MonoBehaviour
     {
         AggiornaPunteggioUI();
         powerUpText.text = "";
+        player = FindObjectOfType<Personaggio2>();
     }
 
     void Update()
     {
-        if (hasSpeedPowerUp)
+        if (hasSpeedInstantKill && !speedInstantKillActive)
         {
-            powerUpText.text = "Premi E per attivare Speed!";
-
+            powerUpText.text = "Premi E per attivare Speed Instant Kill! Premi Q per usarlo.";
             if (Input.GetKeyDown(KeyCode.E))
             {
-                AttivaPowerUpSpeed();
-            }
-        }
-        else if (hasJumpPowerUp)
-        {
-            powerUpText.text = "Premi F per attivare Jump!";
-
-            if (Input.GetKeyDown(KeyCode.F))
-            {
-                AttivaPowerUpJump();
+                AttivaPowerUpSpeedInstantKill();
             }
         }
 
-        if (powerUpTimer > 0f)
+        if (speedInstantKillActive)
         {
             powerUpTimer -= Time.deltaTime;
             if (powerUpTimer <= 0f)
             {
-                powerUpTimer = 0f;
-                DisattivaPowerUp();
+                DisattivaPowerUpSpeedInstantKill();
             }
         }
     }
@@ -75,59 +61,38 @@ public class GameManager : MonoBehaviour
     private void AggiornaPunteggioUI()
     {
         if (punteggioText != null)
-            punteggioText.text = "Punteggio: " + punteggio;
+            punteggioText.text = "Coin: " + punteggio;
     }
 
-    public void RaccogliPowerUpSpeed()
+    public void RaccogliPowerUpSpeedInstantKill()
     {
-        hasSpeedPowerUp = true;
+        hasSpeedInstantKill = true;
+        powerUpText.text = "Premi E per attivare Speed Instant Kill! Premi Q per usarlo.";
     }
 
-    public void RaccogliPowerUpJump()
+    private void AttivaPowerUpSpeedInstantKill()
     {
-        hasJumpPowerUp = true;
-    }
+        if (player == null) return;
 
-    private void AttivaPowerUpSpeed()
-    {
-        Debug.Log("Power-up Speed attivato!");
-        hasSpeedPowerUp = false;
-        powerUpText.text = "";
+        speedInstantKillActive = true;
+        hasSpeedInstantKill = false;
+        powerUpText.text = "Speed Instant Kill attivo! Premi Q per usarlo.";
         powerUpTimer = powerUpDuration;
-        activePowerUp = PowerUpType.Speed;
 
-        Personaggio2 player = FindObjectOfType<Personaggio2>();
-        if (player != null)
-        {
-            player.AttivaSpeedBoost(powerUpDuration);
-        }
+        player.IniziaSpeedInstantKill(powerUpDuration);
     }
 
-    private void AttivaPowerUpJump()
+    private void DisattivaPowerUpSpeedInstantKill()
     {
-        Debug.Log("Power-up Jump attivato!");
-        hasJumpPowerUp = false;
+        speedInstantKillActive = false;
         powerUpText.text = "";
-        powerUpTimer = powerUpDuration;
-        activePowerUp = PowerUpType.Jump;
-
-        Personaggio2 player = FindObjectOfType<Personaggio2>();
-        if (player != null)
-        {
-            player.AttivaJumpBoost(powerUpDuration);
-        }
+        player.FermaSpeedInstantKill();
     }
 
-    private void DisattivaPowerUp()
+    public void GameOver()
     {
-        Debug.Log("Power-up terminato.");
-        powerUpText.text = "";
-        activePowerUp = PowerUpType.None;
-
-        Personaggio2 player = FindObjectOfType<Personaggio2>();
-        if (player != null)
-        {
-            player.DisattivaPowerUps();
-        }
+        Debug.Log("Game Over!");
+        powerUpText.text = "Game Over!";
+        Time.timeScale = 0f;
     }
 }
