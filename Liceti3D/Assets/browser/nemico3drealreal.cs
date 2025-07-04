@@ -5,8 +5,12 @@ public class EnemyPatrol : MonoBehaviour
 {
     public Transform[] waypoints;          // Punti da seguire
     public float waypointTolerance = 0.5f; // Distanza minima per considerare un punto raggiunto
-    public float speed = 3.5f;             // Velocità del nemico
+    public float speed = 3.5f;             // Velocitï¿½ del nemico
     public Transform player;               // Riferimento al giocatore
+    public Transform[] waypoints;
+    public float speed = 3f;
+
+    public GameObject esplosionePrefab;
 
     private int currentWaypointIndex = 0;
     private NavMeshAgent agent;
@@ -47,5 +51,23 @@ public class EnemyPatrol : MonoBehaviour
             Destroy(player.gameObject); // Elimina il giocatore
             Debug.Log("Giocatore eliminato dal nemico!");
         }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        // Se tocchiamo il player
+        Personaggio2 player = other.GetComponent<Personaggio2>();
+        if (player != null)
+        {
+            player.Muori();
+        }
+    }
+
+    public void Muori()
+    {
+        if (esplosionePrefab != null)
+        {
+            Instantiate(esplosionePrefab, transform.position, Quaternion.identity);
+        }
+        Destroy(gameObject);
     }
 }
