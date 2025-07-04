@@ -3,17 +3,14 @@ using UnityEngine.AI;
 
 public class EnemyPatrol : MonoBehaviour
 {
-    public Transform[] waypoints;          // Punti da seguire
-    public float waypointTolerance = 0.5f; // Distanza minima per considerare un punto raggiunto
-    public float speed = 3.5f;             // Velocit� del nemico
-    public Transform player;               // Riferimento al giocatore
     public Transform[] waypoints;
-    public float speed = 3f;
-
+    public float damageCooldown = 1f;
+    public int damage = 10;
     public GameObject esplosionePrefab;
 
     private int currentWaypointIndex = 0;
     private NavMeshAgent agent;
+    private float lastDamageTime = 0f;
 
     void Start()
     {
@@ -21,44 +18,37 @@ public class EnemyPatrol : MonoBehaviour
         if (agent == null)
         {
             Debug.LogError("Aggiungi un NavMeshAgent al nemico!");
+            enabled = false;
             return;
         }
 
-        agent.speed = speed;
-
         if (waypoints.Length > 0)
         {
-            agent.SetDestination(waypoints[0].position);
+            agent.SetDestination(waypoints[currentWaypointIndex].position);
         }
     }
 
     void Update()
     {
-        if (waypoints.Length == 0)
-            return;
+        if (waypoints.Length == 0) return;
 
-        if (!agent.pathPending && agent.remainingDistance < waypointTolerance)
+        // Se è vicino al waypoint corrente, passa al prossimo
+        if (!agent.pathPending && agent.remainingDistance < 0.5f)
         {
             currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
             agent.SetDestination(waypoints[currentWaypointIndex].position);
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnCollisionStay(Collision collision)
     {
-        if (collision.gameObject == player.gameObject)
+        if (collision.gameObject.CompareTag("Player"))
         {
-            Destroy(player.gameObject); // Elimina il giocatore
-            Debug.Log("Giocatore eliminato dal nemico!");
-        }
-    }
-    private void OnTriggerEnter(Collider other)
-    {
-        // Se tocchiamo il player
-        Personaggio2 player = other.GetComponent<Personaggio2>();
-        if (player != null)
-        {
-            player.Muori();
+            if (Time.time - lastDamageTime > damageCooldown)
+            {
+                collision.gameObject.SendMessage("Muori", SendMessageOptions.DontRequireReceiver);
+                lastDamageTime = Time.time;
+            }
         }
     }
 
