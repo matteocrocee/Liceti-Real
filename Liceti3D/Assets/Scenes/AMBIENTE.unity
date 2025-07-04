@@ -6293,6 +6293,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6285873252577592275, guid: 30ce783c0393ebf42b1300f661bb4cf3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e6b9b44320f4448d9d5e0ee634259966, type: 2}
     - target: {fileID: 8475124377252811340, guid: 30ce783c0393ebf42b1300f661bb4cf3, type: 3}
       propertyPath: m_Name
       value: Bouncer (1)
@@ -7768,6 +7772,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6285873252577592275, guid: 30ce783c0393ebf42b1300f661bb4cf3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e6b9b44320f4448d9d5e0ee634259966, type: 2}
     - target: {fileID: 8475124377252811340, guid: 30ce783c0393ebf42b1300f661bb4cf3, type: 3}
       propertyPath: m_Name
       value: Bouncer (3)
@@ -11009,6 +11017,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6285873252577592275, guid: 30ce783c0393ebf42b1300f661bb4cf3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e6b9b44320f4448d9d5e0ee634259966, type: 2}
     - target: {fileID: 8475124377252811340, guid: 30ce783c0393ebf42b1300f661bb4cf3, type: 3}
       propertyPath: m_Name
       value: Bouncer (2)
@@ -11066,6 +11078,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6285873252577592275, guid: 30ce783c0393ebf42b1300f661bb4cf3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e6b9b44320f4448d9d5e0ee634259966, type: 2}
     - target: {fileID: 8475124377252811340, guid: 30ce783c0393ebf42b1300f661bb4cf3, type: 3}
       propertyPath: m_Name
       value: Bouncer
