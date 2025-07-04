@@ -7,7 +7,10 @@ public class EnemyChaseWithHealth : MonoBehaviour
     public float detectionRadius = 8f;
     public float speed = 3.5f;
     public int maxHits = 3;
-    public float raycastLength = 1.5f; // lunghezza del raycast per colpire la testa
+    public float headKillOffset = 0.4f;
+
+    public AudioClip deathSound; // Clip da assegnare
+    private AudioSource audioSource;
 
     private int currentHits = 0;
     private NavMeshAgent agent;
@@ -16,10 +19,10 @@ public class EnemyChaseWithHealth : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        audioSource = GetComponent<AudioSource>();
+
         if (agent != null)
             agent.speed = speed;
-        else
-            Debug.LogError("NavMeshAgent mancante!");
     }
 
     void Update()
@@ -30,13 +33,9 @@ public class EnemyChaseWithHealth : MonoBehaviour
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
         if (distanceToPlayer <= detectionRadius)
-        {
             agent.SetDestination(player.position);
-        }
         else
-        {
-            agent.SetDestination(transform.position); // resta fermo
-        }
+            agent.SetDestination(transform.position);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -44,31 +43,24 @@ public class EnemyChaseWithHealth : MonoBehaviour
         if (!isAlive || collision.gameObject != player.gameObject)
             return;
 
-        // Lancia un raycast dal centro del player verso il basso
-        Ray ray = new Ray(player.position, Vector3.down);
-        RaycastHit hit;
+        float playerBottomY = player.position.y;
+        float enemyTopY = transform.position.y + GetComponent<Collider>().bounds.extents.y;
 
-        if (Physics.Raycast(ray, out hit, raycastLength))
+        if (playerBottomY > enemyTopY + headKillOffset)
         {
-            if (hit.collider.gameObject == this.gameObject)
-            {
-                // Ha colpito il nemico dall'alto
-                HandleHeadHit();
-                return;
-            }
+            HandleHeadHit();
         }
-
-        // Se non ha colpito la testa, elimina il giocatore
-        Destroy(player.gameObject);
-        Debug.Log("Il nemico ha eliminato il giocatore.");
+        else
+        {
+            Destroy(player.gameObject);
+            Debug.Log("Il nemico ha eliminato il giocatore.");
+        }
     }
 
     void HandleHeadHit()
     {
         currentHits++;
-        Debug.Log("Colpo in testa al nemico! Totale: " + currentHits);
 
-        // Rimbalzo del giocatore
         Rigidbody playerRb = player.GetComponent<Rigidbody>();
         if (playerRb != null)
         {
@@ -84,7 +76,18 @@ public class EnemyChaseWithHealth : MonoBehaviour
     void Die()
     {
         isAlive = false;
-        Debug.Log("Nemico eliminato dopo 3 colpi in testa!");
-        Destroy(gameObject);
+
+        if (audioSource != null && deathSound != null)
+        {
+            audioSource.PlayOneShot(deathSound);
+        }
+
+        // Disattiva visivamente e fisicamente il nemico, ma lo distrugge dopo il suono
+        GetComponent<Collider>().enabled = false;
+        if (agent != null) agent.enabled = false;
+        foreach (Renderer r in GetComponentsInChildren<Renderer>())
+            r.enabled = false;
+
+        Destroy(gameObject, deathSound.length); // distruggi dopo fine suono
     }
 }

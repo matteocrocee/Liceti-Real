@@ -1,24 +1,37 @@
 ﻿using UnityEngine;
 
+[RequireComponent(typeof(Collider))]
 public class Void : MonoBehaviour
 {
-    public Transform teleportDestination; // Punto in cui riportare il giocatore
-
-    private void OnCollisionEnter(Collision collision)
+    private void Start()
     {
-        if (collision.gameObject.CompareTag("Player"))
+        // Rende invisibile il Mesh Renderer (se presente)
+        MeshRenderer renderer = GetComponent<MeshRenderer>();
+        if (renderer != null)
         {
-            // 🔹 Rende invisibile la piattaforma (nasconde il mesh renderer)
-            GetComponent<Renderer>().enabled = false;
+            renderer.enabled = false;
+        }
 
-            // 🔹 Teletrasporta il giocatore alla destinazione
-            collision.gameObject.transform.position = teleportDestination.position;
+        // Assicura che il collider sia trigger
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+        {
+            col.isTrigger = true;
+        }
+        else
+        {
+            Debug.LogError("Nessun Collider trovato sulla piattaforma!");
+        }
+    }
 
-            // 🔹 (Opzionale) resetta la velocità per evitare rimbalzi strani
-            Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
-            if (rb != null)
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Personaggio2 player = other.GetComponent<Personaggio2>();
+            if (player != null)
             {
-                rb.velocity = Vector3.zero;
+                player.TriggerRespawnFromFalling();
             }
         }
     }
