@@ -119,7 +119,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95ba3fd6ae2f2864fb35e490fc7f084c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 5
+  shooter: {fileID: 0}
+  impactSound: {fileID: 8300000, guid: 64d3c68a326ff0d42adb1b08927374e8, type: 3}
 --- !u!54 &2121710508649926330
 Rigidbody:
   m_ObjectHideFlags: 0
