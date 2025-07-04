@@ -4,6 +4,7 @@ public class EnemyPatrol : MonoBehaviour
 {
     public Transform[] waypoints;
     public float speed = 3f;
+
     public GameObject esplosionePrefab;
 
     private int currentWaypointIndex = 0;
@@ -22,23 +23,22 @@ public class EnemyPatrol : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        // Se tocchiamo il player
+        Personaggio2 player = other.GetComponent<Personaggio2>();
+        if (player != null)
         {
-            Personaggio2 player = other.GetComponent<Personaggio2>();
-            if (player != null)
-            {
-                player.Muori();
-            }
+            player.Muori();
         }
     }
 
     public void Muori()
     {
         if (esplosionePrefab != null)
+        {
             Instantiate(esplosionePrefab, transform.position, Quaternion.identity);
-
+        }
         Destroy(gameObject);
     }
 }
