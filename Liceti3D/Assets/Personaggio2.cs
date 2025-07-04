@@ -100,7 +100,7 @@ public class Personaggio2 : MonoBehaviour
             foreach (Collider enemy in hitEnemies)
             {
                 if (enemy.TryGetComponent(out EnemyPatrol enemyScript))
-                    enemyScript.;
+                    enemyScript.Muori();
             }
 
             elapsedTime += Time.deltaTime;
