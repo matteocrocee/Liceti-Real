@@ -4,11 +4,9 @@ public class EnemyPatrol : MonoBehaviour
 {
     public Transform[] waypoints;
     public float speed = 3f;
-    public int damage = 10;
-    public float damageCooldown = 1f;
+    public GameObject esplosionePrefab;
 
     private int currentWaypointIndex = 0;
-    private float lastDamageTime = 0f;
 
     void Update()
     {
@@ -24,15 +22,23 @@ public class EnemyPatrol : MonoBehaviour
         }
     }
 
-    private void OnCollisionStay(Collision collision)
+    void OnTriggerEnter(Collider other)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
-            if (Time.time - lastDamageTime > damageCooldown)
+            Personaggio2 player = other.GetComponent<Personaggio2>();
+            if (player != null)
             {
-                collision.gameObject.SendMessage("TakeDamage", damage, SendMessageOptions.DontRequireReceiver);
-                lastDamageTime = Time.time;
+                player.Muori();
             }
         }
+    }
+
+    public void Muori()
+    {
+        if (esplosionePrefab != null)
+            Instantiate(esplosionePrefab, transform.position, Quaternion.identity);
+
+        Destroy(gameObject);
     }
 }
