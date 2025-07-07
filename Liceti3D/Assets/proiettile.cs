@@ -23,8 +23,12 @@ public class EnemyProjectile : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Player"))
         {
-            Destroy(collision.gameObject);
-            Debug.Log("Giocatore eliminato dal proiettile!");
+            Personaggio2 playerScript = collision.gameObject.GetComponent<Personaggio2>();
+            if (playerScript != null)
+            {
+                playerScript.Muori(); // 👈 richiama il metodo di respawn
+                Debug.Log("Giocatore colpito dal proiettile e respawnato.");
+            }
         }
 
         // Riproduci suono di impatto (se c'è un audio source e clip)

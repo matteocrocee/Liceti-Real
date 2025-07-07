@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CameraFollow : MonoBehaviour
+public class Camera_Follow : MonoBehaviour
 {
     public Transform target;         // Il personaggio da seguire
     public Vector3 offset = new Vector3(0f, 5f, -8f);  // Offset rispetto al personaggio

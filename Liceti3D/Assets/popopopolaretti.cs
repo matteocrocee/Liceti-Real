@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class EnemyShooter : MonoBehaviour
+public class popopopolaretti: MonoBehaviour
 {
     public GameObject projectilePrefab;     // Prefab del proiettile
     public Transform firePoint;             // Punto da cui sparare

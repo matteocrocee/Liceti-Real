@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyChaseWithHealth : MonoBehaviour
+public class browserjr : MonoBehaviour
 {
     public Transform player;
     public float detectionRadius = 8f;
@@ -52,10 +52,14 @@ public class EnemyChaseWithHealth : MonoBehaviour
         }
         else
         {
-            Destroy(player.gameObject);
-            Debug.Log("Il nemico ha eliminato il giocatore.");
+            Personaggio2 playerScript = player.GetComponent<Personaggio2>();
+            if (playerScript != null)
+            {
+                playerScript.Muori(); // 👈 Respawn anziché distruzione
+            }
         }
     }
+
 
     void HandleHeadHit()
     {
