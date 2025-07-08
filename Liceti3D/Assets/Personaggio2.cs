@@ -24,6 +24,9 @@ public class Personaggio2 : MonoBehaviour
     public bool speedInstantKillActive = false;
     public bool powerJumpActive = false;
 
+    [Header("Materiali fisici")]
+    public PhysicMaterial noBounceMaterial;
+
     [Header("Altre impostazioni")]
     public float fallThresholdY = -10f;
     public Transform cameraTransform;
@@ -37,6 +40,9 @@ public class Personaggio2 : MonoBehaviour
     private Vector3 climbDirection;
     private float climbSpeed = 5f; // Puoi regolare la velocità se vuoi
 
+    [Header("Controllo in volo")]
+    public float airControlMultiplier = 0.5f; // controllo in volo ridotto
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -44,6 +50,9 @@ public class Personaggio2 : MonoBehaviour
         rb.maxAngularVelocity = 100f;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+
+        if (noBounceMaterial != null)
+            GetComponent<Collider>().material = noBounceMaterial;
 
         if (cameraTransform == null)
             cameraTransform = Camera.main.transform;
@@ -153,9 +162,12 @@ public class Personaggio2 : MonoBehaviour
 
             Vector3 moveDir = (camForward * input.z + camRight * input.x).normalized;
 
-            // Aggiunge forza di movimento
+            // Aggiunge forza di movimento, con controllo anche in aria ma ridotto
+            float currentMoveForce = isGrounded ? moveForce : moveForce * airControlMultiplier;
+
             if (rb.velocity.magnitude < maxSpeed)
-                rb.AddForce(moveDir * moveForce, ForceMode.Acceleration);
+                rb.AddForce(moveDir * currentMoveForce, ForceMode.Acceleration);
+
 
             // Applica torque per rotazione realistica
             Vector3 torqueDir = Vector3.Cross(Vector3.up, moveDir);
@@ -165,7 +177,7 @@ public class Personaggio2 : MonoBehaviour
         {
             // Rallentamento progressivo
             Vector3 horizontalVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
-            Vector3 braking = -horizontalVelocity.normalized * brakingForce * Time.fixedDeltaTime;
+            Vector3 braking = -horizontalVelocity * brakingForce * Time.fixedDeltaTime;
 
             if (horizontalVelocity.magnitude > 0.1f)
                 rb.AddForce(braking, ForceMode.VelocityChange);
@@ -196,10 +208,10 @@ public class Personaggio2 : MonoBehaviour
             Collider[] hitEnemies = Physics.OverlapSphere(transform.position, 1.0f, enemyLayer);
             foreach (Collider enemy in hitEnemies)
             {
-                if (enemy.TryGetComponent(out EnemyPatrol enemyScript))
-                {
-                    enemyScript.Muori();
-                }
+                //if (enemy.TryGetComponent(out EnemyPatrol enemyScript))
+                //{
+                //    enemyScript.Muori();
+                //}
             }
 
             elapsedTime += Time.deltaTime;
