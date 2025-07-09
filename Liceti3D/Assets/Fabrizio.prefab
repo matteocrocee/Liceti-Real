@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2330788921919065509}
   - component: {fileID: 1791395528024920296}
   - component: {fileID: 3574331436235127795}
+  - component: {fileID: 6331275826814043395}
   m_Layer: 0
   m_Name: Fabrizio
   m_TagString: Player
@@ -119,18 +120,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e97693518767e849b57c7a76a977c00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 7
-  runSpeed: 12
+  moveForce: 10
+  maxSpeed: 8
+  brakingForce: 5
+  rotationTorque: 10
+  jumpForce: 5
+  gravityMultiplier: 2
   dashSpeed: 30
   dashDuration: 0.2
   enemyLayer:
     serializedVersion: 2
     m_Bits: 1
   dashEffect: {fileID: 0}
-  jumpHeight: 1.96
-  gravity: -9.81
-  rotationSmoothTime: 0.1
+  speedInstantKillActive: 0
+  powerJumpActive: 0
+  noBounceMaterial: {fileID: 0}
+  fallThresholdY: -10
   cameraTransform: {fileID: 0}
+  airControlMultiplier: 0.5
 --- !u!143 &3574331436235127795
 CharacterController:
   m_ObjectHideFlags: 0
@@ -157,3 +164,30 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &6331275826814043395
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3803539927351504351}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 1

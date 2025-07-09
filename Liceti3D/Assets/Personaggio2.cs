@@ -46,6 +46,11 @@ public class Personaggio2 : MonoBehaviour
 
     void Start()
     {
+        if (GetComponent<Rigidbody>() == null)
+        {
+            Debug.LogError("Manca Rigidbody su: " + gameObject.name);
+        }
+
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         rb.constraints = RigidbodyConstraints.None;
