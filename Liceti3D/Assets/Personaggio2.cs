@@ -32,6 +32,7 @@ public class Personaggio2 : MonoBehaviour
     public Transform cameraTransform;
 
     private Rigidbody rb;
+    private Animator animator;
     private bool isGrounded = false;
     private bool isDashing = false;
     private Vector3 respawnPosition;
@@ -46,6 +47,7 @@ public class Personaggio2 : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
         rb.constraints = RigidbodyConstraints.None;
         rb.maxAngularVelocity = 100f;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -117,14 +119,12 @@ public class Personaggio2 : MonoBehaviour
             return;
         }
 
-
-
-
         // Salto
         if (Input.GetButtonDown("Jump") && isGrounded && !isDashing)
         {
             float jumpPower = powerJumpActive ? jumpForce * 2f : jumpForce;
             rb.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
+            animator.SetBool("IsJumping", true);
         }
 
         // Dash
@@ -138,6 +138,8 @@ public class Personaggio2 : MonoBehaviour
         {
             Respawn();
         }
+
+        animator.SetBool("IsJumping", !isGrounded);
     }
 
     void FixedUpdate()
@@ -151,6 +153,10 @@ public class Personaggio2 : MonoBehaviour
         }
 
         Vector3 input = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+
+        float horizontalSpeed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
+        animator.SetFloat("Speed", horizontalSpeed);
+
         if (input.magnitude > 0.1f)
         {
             Vector3 camForward = cameraTransform.forward;
