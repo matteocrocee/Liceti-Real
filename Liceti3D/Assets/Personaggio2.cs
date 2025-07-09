@@ -88,6 +88,7 @@ public class Personaggio2 : MonoBehaviour
         // Controllo dell'arrampicata
         if (isClimbing)
         {
+            animator.SetBool("IsClimbing", true);
             float h = Input.GetAxis("Horizontal"); // A/D
             float v = Input.GetAxis("Vertical");   // W/S
 
@@ -119,6 +120,7 @@ public class Personaggio2 : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 StopClimbing();
+                animator.SetBool("IsClimbing", false);
             }
 
             return;
