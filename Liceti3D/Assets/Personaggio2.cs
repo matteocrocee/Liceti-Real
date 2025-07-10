@@ -44,6 +44,8 @@ public class Personaggio2 : MonoBehaviour
     [Header("Controllo in volo")]
     public float airControlMultiplier = 0.5f; // controllo in volo ridotto
 
+    public float maxLeanAngle = 10f;
+
     void Start()
     {
         if (GetComponent<Rigidbody>() == null)
@@ -311,5 +313,28 @@ public class Personaggio2 : MonoBehaviour
     internal void TriggerRespawnFromFalling()
     {
         Respawn(); // eventualmente puoi personalizzarlo
+    }
+
+    private void LateUpdate()
+    {
+        Vector3 currentEuler = transform.eulerAngles;
+
+        // Converti rotazioni superiori a 180° in negative (es. 350° → -10°)
+        float x = NormalizeAngle(currentEuler.x);
+        float z = NormalizeAngle(currentEuler.z);
+
+        // Clampa i valori per impedire inclinazioni eccessive
+        x = Mathf.Clamp(x, -maxLeanAngle, maxLeanAngle);
+        z = Mathf.Clamp(z, -maxLeanAngle, maxLeanAngle);
+
+        // Applica rotazione corretta
+        transform.rotation = Quaternion.Euler(x, currentEuler.y, z);
+    }
+
+    private float NormalizeAngle(float angle)
+    {
+        if (angle > 180f)
+            angle -= 360f;
+        return angle;
     }
 }
