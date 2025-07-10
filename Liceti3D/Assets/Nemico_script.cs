@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class EnemyPatroller : MonoBehaviour
+public class Nemico_script : MonoBehaviour
 {
     [Header("Movimento")]
     public List<Transform> patrolPoints;
