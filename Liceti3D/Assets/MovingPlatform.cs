@@ -8,47 +8,46 @@ public class MovingPlatform : MonoBehaviour
 
     private Vector3 target;
     private Vector3 lastPosition;
-    private Rigidbody playerRb;
+
+    private GameObject playerOnPlatform = null;
+    private Vector3 playerOriginalScale;
+
+    private Rigidbody platformRb;
 
     private void Start()
     {
         target = pointB.position;
         lastPosition = transform.position;
-    }
-
-    private void Update()
-    {
-        // Muove la piattaforma verso il target
-        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
-
-        // Quando raggiunge il target, lo cambia
-        if (Vector3.Distance(transform.position, target) < 0.1f)
-        {
-            target = (target == pointA.position) ? pointB.position : pointA.position;
-        }
+        platformRb = GetComponent<Rigidbody>();
     }
 
     private void FixedUpdate()
     {
-        // Calcola la velocità della piattaforma
-        Vector3 platformVelocity = (transform.position - lastPosition) / Time.fixedDeltaTime;
+        Vector3 newPos = Vector3.MoveTowards(transform.position, target, speed * Time.fixedDeltaTime);
+        platformRb.MovePosition(newPos);
 
-        // Se c'è un Rigidbody del player, aggiungigli la velocità della piattaforma
-        if (playerRb != null)
+        // Cambio direzione se raggiunto il target
+        if (Vector3.Distance(newPos, target) < 0.1f)
         {
-            playerRb.velocity += new Vector3(platformVelocity.x, 0f, platformVelocity.z);
+            target = (target == pointA.position) ? pointB.position : pointA.position;
         }
 
-        // Aggiorna la posizione precedente della piattaforma
-        lastPosition = transform.position;
+        // Movimento relativo del player (opzionale se MovePosition funziona bene da solo)
+        if (playerOnPlatform != null)
+        {
+            Vector3 delta = newPos - lastPosition;
+            playerOnPlatform.transform.position += delta;
+        }
+
+        lastPosition = newPos;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            collision.transform.SetParent(transform);
-            playerRb = collision.rigidbody;
+            playerOnPlatform = collision.gameObject;
+            playerOriginalScale = playerOnPlatform.transform.localScale; // salva la scala
         }
     }
 
@@ -56,8 +55,8 @@ public class MovingPlatform : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            collision.transform.SetParent(null);
-            playerRb = null;
+            playerOnPlatform.transform.localScale = playerOriginalScale; // ripristina scala
+            playerOnPlatform = null;
         }
     }
 }

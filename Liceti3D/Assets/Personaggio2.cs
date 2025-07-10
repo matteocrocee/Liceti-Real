@@ -123,6 +123,9 @@ public class Personaggio2 : MonoBehaviour
                 animator.SetBool("IsClimbing", false);
             }
 
+            Vector3 fixedRotation = transform.rotation.eulerAngles;
+            transform.rotation = Quaternion.Euler(0f, fixedRotation.y, 0f);
+
             return;
         }
 
